@@ -1,0 +1,4 @@
+.mypy_cache/
+.ipynb_checkpoints/
+.jupyter_ystore.db
+v/
