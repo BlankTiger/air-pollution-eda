@@ -312,3 +312,12 @@ fig = plt.figure()
 ax = fig.add_subplot(projection="3d")
 ax.scatter(X[:, 0], X[:, 1], X[:, 2], s=3)
 plt.show()
+
+# %% [markdown]
+# # Rozdział na zbiór treningowy i testowy
+
+# %%
+from sklearn.model_selection import train_test_split
+
+random_state = 42
+X_train, y_train, X_test, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
