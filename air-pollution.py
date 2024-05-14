@@ -362,3 +362,52 @@ data[data["pm2.5_aqi_value"] == 319]
 data[data["aqi_category"] == "Hazardous"][data["country_name"] == "India"]
 
 # %%
+from sklearn.tree import DecisionTreeRegressor
+
+decision_tree = DecisionTreeRegressor()
+decision_tree.fit(X_train, y_train)
+
+# %%
+y_pred = decision_tree.predict(X_test)
+mean_squared_error(y_test, y_pred)
+
+# %%
+r2_score(y_test, y_pred)
+
+# %%
+differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
+differences
+
+# %%
+from sklearn.linear_model import Lasso
+
+lasso = Lasso(alpha=300)
+lasso.fit(X_train, y_train)
+
+# %%
+y_pred = lasso.predict(X_test)
+mean_squared_error(y_test, y_pred)
+
+# %%
+r2_score(y_test, y_pred)
+
+# %%
+differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
+differences
+
+# %%
+from sklearn.neural_network import MLPRegressor
+
+mlp = MLPRegressor(random_state=random_state, max_iter=500)
+mlp.fit(X_train, y_train)
+
+# %%
+y_pred = mlp.predict(X_test)
+mean_squared_error(y_test, y_pred)
+
+# %%
+r2_score(y_test, y_pred)
+
+# %%
+differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
+differences
