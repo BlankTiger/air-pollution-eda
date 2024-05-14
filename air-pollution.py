@@ -320,4 +320,45 @@ plt.show()
 from sklearn.model_selection import train_test_split
 
 random_state = 42
-X_train, y_train, X_test, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, Y.T, test_size=0.2, random_state=42)
+
+# %%
+from sklearn.neighbors import KNeighborsRegressor
+
+knr = KNeighborsRegressor(n_neighbors=5)
+knr.fit(X_train, y_train)
+
+# %%
+from sklearn.metrics import mean_squared_error
+
+y_pred = knr.predict(X_test)
+mean_squared_error(y_test, y_pred)
+
+# %%
+from sklearn.metrics import r2_score
+
+r2_score(y_test, y_pred)
+
+# %%
+y_test
+
+# %%
+y_pred
+
+# %%
+differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
+differences
+
+# %%
+y_pred[2241]
+
+# %%
+X_test[2241]
+
+# %%
+data[data["pm2.5_aqi_value"] == 319]
+
+# %%
+data[data["aqi_category"] == "Hazardous"][data["country_name"] == "India"]
+
+# %%
