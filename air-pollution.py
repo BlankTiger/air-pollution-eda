@@ -86,21 +86,21 @@ plt.scatter(data["aqi_value"], data["pm2.5_aqi_value"])
 
 # %% [markdown]
 # # Próba zastosowania geodatasets i geopandas do utworzenia mapki
-
-# %%
-import geodatasets
-import geopandas as gpd
-
-g_data = gpd.read_file("data/world-administrative-boundaries.zip")
-locations = gpd.tools.geocode(g_data["name"])
-
-# %%
-locations
-
-# %%
-fig, ax = plt.subplots()
-g_data.to_crs("EPSG:4326").plot(ax=ax, color="white", edgecolor="black")
-locations.plot(ax=ax, color="red")
+#
+# # %%
+# import geodatasets
+# import geopandas as gpd
+#
+# g_data = gpd.read_file("data/world-administrative-boundaries.zip")
+# locations = gpd.tools.geocode(g_data["name"])
+#
+# # %%
+# locations
+#
+# # %%
+# fig, ax = plt.subplots()
+# g_data.to_crs("EPSG:4326").plot(ax=ax, color="white", edgecolor="black")
+# locations.plot(ax=ax, color="red")
 
 # %% [markdown]
 # # Zbudowanie średniej wartości aqi_value dla poszczególnych państw
@@ -150,16 +150,16 @@ sns.barplot(
 )
 plt.show()
 
-# %% [markdown]
-# ## Mapka średnich wartości aqi_value per państwo
+# # %% [markdown]
+# # ## Mapka średnich wartości aqi_value per państwo
+# #
+# # Dla państw bez danych przyjęto wartość 0, która realnie nie jest osiągalna.
 #
-# Dla państw bez danych przyjęto wartość 0, która realnie nie jest osiągalna.
-
-# %%
-g_data["aqi_values"] = pd.Series(
-    [avg_per_country.get(country_name, 0) for country_name in g_data["name"]]
-)
-g_data.explore(column="aqi_values")
+# # %%
+# g_data["aqi_values"] = pd.Series(
+#     [avg_per_country.get(country_name, 0) for country_name in g_data["name"]]
+# )
+# g_data.explore(column="aqi_values")
 
 # %% [markdown]
 # ## Próba dedukcji wysokiego poziomu aqi_value w Korei Południowej
@@ -227,57 +227,57 @@ Y = np.array(data["aqi_value"]).T
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-tsne = TSNE(n_components=2, learning_rate="auto", init="random")
-
-# %%
-X_embedded = tsne.fit_transform(X)
-X_embedded.shape
-
-# %%
-X_embedded
-
-# %%
-plt.scatter(X_embedded[:, 0], X_embedded[:, 1])
-plt.show()
-
-# %%
-tsne = TSNE(n_components=3, learning_rate="auto", init="random")
-
-X3_embedded = tsne.fit_transform(X)
-X3_embedded.shape
-
-# %%
-# %matplotlib widget
-
-fig = plt.figure()
-ax = fig.add_subplot(projection="3d")
-ax.scatter(X3_embedded[:, 0], X3_embedded[:, 1], X3_embedded[:, 2], s=3)
-plt.show()
-
-# %%
-import plotly
-import plotly.graph_objs as go
-
-plotly.offline.init_notebook_mode()
-
-trace = go.Scatter3d(
-    x=X3_embedded[:, 0],
-    y=X3_embedded[:, 1],
-    z=X3_embedded[:, 2],
-    mode="markers",
-    marker={
-        "size": 10,
-        "opacity": 0.8,
-    },
-)
-
-layout = go.Layout(margin={"l": 0, "r": 0, "b": 0, "t": 0})
-
-_data = [trace]
-plot_figure = go.Figure(data=_data, layout=layout)
-
-plotly.offline.iplot(plot_figure)
-
+# tsne = TSNE(n_components=2, learning_rate="auto", init="random")
+#
+# # %%
+# X_embedded = tsne.fit_transform(X)
+# X_embedded.shape
+#
+# # %%
+# X_embedded
+#
+# # %%
+# plt.scatter(X_embedded[:, 0], X_embedded[:, 1])
+# plt.show()
+#
+# # %%
+# tsne = TSNE(n_components=3, learning_rate="auto", init="random")
+#
+# X3_embedded = tsne.fit_transform(X)
+# X3_embedded.shape
+#
+# # %%
+# # %matplotlib widget
+#
+# fig = plt.figure()
+# ax = fig.add_subplot(projection="3d")
+# ax.scatter(X3_embedded[:, 0], X3_embedded[:, 1], X3_embedded[:, 2], s=3)
+# plt.show()
+#
+# # %%
+# import plotly
+# import plotly.graph_objs as go
+#
+# plotly.offline.init_notebook_mode()
+#
+# trace = go.Scatter3d(
+#     x=X3_embedded[:, 0],
+#     y=X3_embedded[:, 1],
+#     z=X3_embedded[:, 2],
+#     mode="markers",
+#     marker={
+#         "size": 10,
+#         "opacity": 0.8,
+#     },
+# )
+#
+# layout = go.Layout(margin={"l": 0, "r": 0, "b": 0, "t": 0})
+#
+# _data = [trace]
+# plot_figure = go.Figure(data=_data, layout=layout)
+#
+# plotly.offline.iplot(plot_figure)
+#
 # %% [markdown]
 # ## PCA
 
@@ -378,6 +378,7 @@ r2_score(y_test, y_pred)
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
+
 # %%
 from sklearn.linear_model import Lasso
 
@@ -396,13 +397,13 @@ differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
 # %%
-from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestRegressor
 
-mlp = MLPRegressor(random_state=random_state, max_iter=500)
-mlp.fit(X_train, y_train)
+random_forest = RandomForestRegressor()
+random_forest.fit(X_train, y_train)
 
 # %%
-y_pred = mlp.predict(X_test)
+y_pred = random_forest.predict(X_test)
 mean_squared_error(y_test, y_pred)
 
 # %%
@@ -411,3 +412,5 @@ r2_score(y_test, y_pred)
 # %%
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
+
+# %%
