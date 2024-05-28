@@ -1,0 +1,9 @@
+matplotlib
+jupyterlab
+pandas
+numpy
+scipy
+pyarrow
+liac-arff
+scikit-learn
+nltk
