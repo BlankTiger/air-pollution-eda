@@ -7,3 +7,5 @@ pyarrow
 liac-arff
 scikit-learn
 nltk
+seaborn
+lime

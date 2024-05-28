@@ -420,7 +420,6 @@ mlp = MLPRegressor(random_state=random_state, max_iter=500)
 mlp.fit(X_train, y_train)
 
 # %%
-
 y_pred = mlp.predict(X_test)
 mean_squared_error(y_test, y_pred)
 

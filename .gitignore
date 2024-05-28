@@ -4,3 +4,4 @@
 v/
 .null-ls*
 .dmypy.json
+*.ipynb
