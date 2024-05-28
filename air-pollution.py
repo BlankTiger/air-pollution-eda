@@ -435,11 +435,18 @@ import lime
 import lime.lime_tabular
 
 # %%
+feature_names = [
+    "co_aqi_value\t",
+    "ozone_aqi_value",
+    "no2_aqi_value",
+    "pm2.5_aqi_value",
+]
+
+# %%
 explainer = lime.lime_tabular.LimeTabularExplainer(
-    train,
-    feature_names=boston.feature_names,
-    class_names=["price"],
-    categorical_features=categorical_features,
+    X_train,
+    feature_names=feature_names,
+    class_names=["aqi_value"],
     verbose=True,
     mode="regression",
 )
