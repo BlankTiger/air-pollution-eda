@@ -414,3 +414,22 @@ differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
 # %%
+import lime
+import lime.lime_tabular
+
+# %%
+explainer = lime.lime_tabular.LimeTabularExplainer(
+    train,
+    feature_names=boston.feature_names,
+    class_names=["price"],
+    categorical_features=categorical_features,
+    verbose=True,
+    mode="regression",
+)
+
+# %%
+i = 25
+exp = explainer.explain_instance(test[i], rf.predict, num_features=5)
+
+# %%
+exp.show_in_notebook(show_table=True)
