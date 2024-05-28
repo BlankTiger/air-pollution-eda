@@ -378,6 +378,7 @@ r2_score(y_test, y_pred)
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
+
 # %%
 from sklearn.linear_model import Lasso
 
@@ -396,13 +397,13 @@ differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
 # %%
-from sklearn.neural_network import MLPRegressor
+from sklearn.ensemble import RandomForestRegressor
 
-mlp = MLPRegressor(random_state=random_state, max_iter=500)
-mlp.fit(X_train, y_train)
+random_forest = RandomForestRegressor()
+random_forest.fit(X_train, y_train)
 
 # %%
-y_pred = mlp.predict(X_test)
+y_pred = random_forest.predict(X_test)
 mean_squared_error(y_test, y_pred)
 
 # %%
@@ -411,3 +412,5 @@ r2_score(y_test, y_pred)
 # %%
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
+
+# %%
