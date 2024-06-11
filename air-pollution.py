@@ -430,6 +430,30 @@ r2_score(y_test, y_pred)
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
+
+# %%
+from sklearn.stats import shapiro, ttest_rel
+
+
+def calculate_mean_and_stddev(data: list) -> tuple[float, float]:
+    return np.mean(data), np.std(data)
+
+
+def calculate_stats_for_metrics(
+    metrics_1st_model: dict[str, list],
+    metrics_2nd_model: dict[str, list],
+) -> pd.DataFrame:
+    assert metrics_1st_model.keys() == metrics_2nd_model.keys()
+    stats = {}
+    metric_names = metrics_1st_model.keys()
+    for metric_name in metric_names:
+        metric_1st = metrics_1st_model[metric_name]
+        metric_2nd = metrics_2nd_model[metric_name]
+        shapiro_a = shapiro(metric_1st)
+        shapiro_b = shapiro(metric_2nd)
+        ttest_res = ttest_rel(metric_1st, metric_2nd)
+
+
 # %%
 import lime
 import lime.lime_tabular
@@ -451,9 +475,31 @@ explainer = lime.lime_tabular.LimeTabularExplainer(
     mode="regression",
 )
 
+
 # %%
-i = 25
-exp = explainer.explain_instance(test[i], rf.predict, num_features=5)
+from typing import Callable
+
+from lime.explanation import Explanation
+
+
+def get_explainer(model_predictor: Callable, y_value: float) -> Explanation:
+    return explainer.explain_instance(
+        y_value,
+        model_predictor,
+        num_features=5,
+    )
+
+
+i = 42
+
+# %%
+exp = get_explainer(random_forest.predict, X_test[i])
+
+# %%
+exp.show_in_notebook(show_table=True)
+
+# %%
+exp = get_explainer(mlp.predict, X_test[i])
 
 # %%
 exp.show_in_notebook(show_table=True)
