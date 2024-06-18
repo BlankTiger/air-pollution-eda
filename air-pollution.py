@@ -13,6 +13,11 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# # Maciej Urban, Bartek Wanot
+#
+# ## zanieczyszczenie powietrza
+
 # %%
 import pandas as pd
 
@@ -31,15 +36,6 @@ data.info()
 data.describe()
 
 # %%
-data.isna().sum()
-
-# %%
-data.nunique()
-
-# %%
-data["city_name"].unique()
-
-# %%
 data = data.drop_duplicates()
 
 # %%
@@ -51,9 +47,6 @@ data.isna().sum()
 # %%
 import matplotlib_inline
 from matplotlib import pyplot as plt
-
-# %%
-data["aqi_value"].unique()
 
 
 # %%
@@ -68,37 +61,25 @@ def create_hist(data: list[float], bins: int) -> None:
 create_hist(data["aqi_value"], 50)
 
 # %%
-data.info()
-
-# %%
-data.dtypes
-
-# %%
-data["city_name"] = data["city_name"].astype(pd.StringDtype())
-
-# %%
-data.loc[data["country_name"] == "Germany"]["city_name"].unique()
-
-# %%
 plt.scatter(data["aqi_value"], data["pm2.5_aqi_value"])
 
 # %% [markdown]
 # # Próba zastosowania geodatasets i geopandas do utworzenia mapki
-#
-# # %%
-# import geodatasets
-# import geopandas as gpd
-#
-# g_data = gpd.read_file("data/world-administrative-boundaries.zip")
-# locations = gpd.tools.geocode(g_data["name"])
-#
-# # %%
-# locations
-#
-# # %%
-# fig, ax = plt.subplots()
-# g_data.to_crs("EPSG:4326").plot(ax=ax, color="white", edgecolor="black")
-# locations.plot(ax=ax, color="red")
+
+# %%
+import geodatasets
+import geopandas as gpd
+
+g_data = gpd.read_file("data/world-administrative-boundaries.zip")
+locations = gpd.tools.geocode(g_data["name"])
+
+# %%
+locations
+
+# %%
+fig, ax = plt.subplots()
+g_data.to_crs("EPSG:4326").plot(ax=ax, color="white", edgecolor="black")
+locations.plot(ax=ax, color="red")
 
 # %% [markdown]
 # # Zbudowanie średniej wartości aqi_value dla poszczególnych państw
@@ -148,16 +129,16 @@ sns.barplot(
 )
 plt.show()
 
-# # %% [markdown]
-# # ## Mapka średnich wartości aqi_value per państwo
-# #
-# # Dla państw bez danych przyjęto wartość 0, która realnie nie jest osiągalna.
+# %% [markdown]
+# ## Mapka średnich wartości aqi_value per państwo
 #
-# # %%
-# g_data["aqi_values"] = pd.Series(
-#     [avg_per_country.get(country_name, 0) for country_name in g_data["name"]]
-# )
-# g_data.explore(column="aqi_values")
+# Dla państw bez danych przyjęto wartość 0, która realnie nie jest osiągalna.
+
+# %%
+g_data["aqi_values"] = pd.Series(
+    [avg_per_country.get(country_name, 0) for country_name in g_data["name"]]
+)
+g_data.explore(column="aqi_values")
 
 # %% [markdown]
 # ## Próba dedukcji wysokiego poziomu aqi_value w Korei Południowej
@@ -170,23 +151,6 @@ data[data["country_name"] == "Republic of Korea"]
 
 # %%
 data[data["country_name"] == "Poland"].max()
-
-# %% [markdown]
-# ## Model pomysły
-#
-# - estymacja jednego parametru pod wpływem innych parametrów jakości powietrza
-# - estymacja wielu parametrów jakości powietrza pod wpływem jednego/wielu
-# - propozycje lokalizacji pod wpływem parametrów
-# - kategoria aqi_category w zależności od parametrów
-#
-# Wybrany model: estymacja jednego parametru pod wpływem innych parametrów jakości powietrza
-#
-# ## Klasteryzacja
-#
-# t-SNE zrobić po subsetcie fit, a po całości transform przynajmniej jedna osoba powinna zrobić
-#
-# ##
-#
 
 # %% [markdown]
 # ## Korelacje
@@ -225,59 +189,35 @@ Y = np.array(data["aqi_value"]).T
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-# tsne = TSNE(n_components=2, learning_rate="auto", init="random")
-#
-# # %%
-# X_embedded = tsne.fit_transform(X)
-# X_embedded.shape
-#
-# # %%
-# X_embedded
-#
-# # %%
-# plt.scatter(X_embedded[:, 0], X_embedded[:, 1])
-# plt.show()
-#
-# # %%
-# tsne = TSNE(n_components=3, learning_rate="auto", init="random")
-#
-# X3_embedded = tsne.fit_transform(X)
-# X3_embedded.shape
-#
-# # %%
-# # %matplotlib widget
-#
-# fig = plt.figure()
-# ax = fig.add_subplot(projection="3d")
-# ax.scatter(X3_embedded[:, 0], X3_embedded[:, 1], X3_embedded[:, 2], s=3)
-# plt.show()
-#
-# # %%
-# import plotly
-# import plotly.graph_objs as go
-#
-# plotly.offline.init_notebook_mode()
-#
-# trace = go.Scatter3d(
-#     x=X3_embedded[:, 0],
-#     y=X3_embedded[:, 1],
-#     z=X3_embedded[:, 2],
-#     mode="markers",
-#     marker={
-#         "size": 10,
-#         "opacity": 0.8,
-#     },
-# )
-#
-# layout = go.Layout(margin={"l": 0, "r": 0, "b": 0, "t": 0})
-#
-# _data = [trace]
-# plot_figure = go.Figure(data=_data, layout=layout)
-#
-# plotly.offline.iplot(plot_figure)
-#
+tsne = TSNE(n_components=2, learning_rate="auto", init="random")
+
+# %%
+X_embedded = tsne.fit_transform(X)
+X_embedded.shape
+
+# %%
+X_embedded
+
+# %%
+plt.scatter(X_embedded[:, 0], X_embedded[:, 1])
+plt.show()
+
+# %%
+tsne = TSNE(n_components=3, learning_rate="auto", init="random")
+
+X3_embedded = tsne.fit_transform(X)
+X3_embedded.shape
+
+# %%
+# %matplotlib widget
+
+fig = plt.figure()
+ax = fig.add_subplot(projection="3d")
+ax.scatter(X3_embedded[:, 0], X3_embedded[:, 1], X3_embedded[:, 2], s=3)
+plt.show()
+
 # %% [markdown]
-# ## PCA
+# # PCA
 
 # %%
 pca = PCA(n_components="mle")
@@ -429,7 +369,7 @@ differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
 # %%
-from sklearn.stats import shapiro, ttest_rel
+from scipy.stats import shapiro, ttest_rel
 
 
 def calculate_mean_and_stddev(data: list) -> tuple[float, float]:
@@ -451,34 +391,13 @@ def calculate_stats_for_metrics(
         ttest_res = ttest_rel(metric_1st, metric_2nd)
 
 
-# %%
-import lime
-import lime.lime_tabular
-
-# %%
-feature_names = [
-    "co_aqi_value\t",
-    "ozone_aqi_value",
-    "no2_aqi_value",
-    "pm2.5_aqi_value",
-]
-
-# %%
-explainer = lime.lime_tabular.LimeTabularExplainer(
-    X_train,
-    feature_names=feature_names,
-    class_names=["aqi_value"],
-    verbose=True,
-    mode="regression",
-)
-
 # %% [markdown]
 # ## Walidacja krzyżowa
 
 # %%
+from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.model_selection import KFold
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import r2_score
+
 kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
 # %% [markdown]
@@ -487,10 +406,8 @@ kf = KFold(n_splits=5, shuffle=True, random_state=42)
 
 # %%
 from sklearn.neighbors import KNeighborsRegressor
-knr_metrics = {
-    "mean_squared_error": [],
-    "r2_score": []
-}
+
+knr_metrics = {"mean_squared_error": [], "r2_score": []}
 for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
     X_train, X_test = X[train_index], X[test_index]
     Y_train, Y_test = Y[train_index], Y[test_index]
@@ -501,7 +418,7 @@ for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
 
     # Testy modelu
     knr_Y_pred = knr.predict(X_test)
-    
+
     knr_mean_squared_error = mean_squared_error(Y_test, knr_Y_pred)
     knr_r2_score = r2_score(Y_test, knr_Y_pred)
 
@@ -516,10 +433,8 @@ for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
 
 # %%
 from sklearn.tree import DecisionTreeRegressor
-tree_metrics = {
-    "mean_squared_error": [],
-    "r2_score": []
-}
+
+tree_metrics = {"mean_squared_error": [], "r2_score": []}
 for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
     X_train, X_test = X[train_index], X[test_index]
     y_train, Y_test = Y[train_index], Y[test_index]
@@ -546,10 +461,8 @@ for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
 
 # %%
 from sklearn.linear_model import Lasso
-lasso_metrics = {
-    "mean_squared_error": [],
-    "r2_score": []
-}
+
+lasso_metrics = {"mean_squared_error": [], "r2_score": []}
 for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
     X_train, X_test = X[train_index], X[test_index]
     y_train, Y_test = Y[train_index], Y[test_index]
@@ -576,10 +489,8 @@ for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
 
 # %%
 from sklearn.ensemble import RandomForestRegressor
-forest_metrics = {
-    "mean_squared_error": [],
-    "r2_score": []
-}
+
+forest_metrics = {"mean_squared_error": [], "r2_score": []}
 for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
     X_train, X_test = X[train_index], X[test_index]
     y_train, Y_test = Y[train_index], Y[test_index]
@@ -606,6 +517,7 @@ for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
 
 # %%
 from sklearn.neural_network import MLPRegressor
+
 mlp_mean_squared_error = []
 mlp_r2_score = []
 for train_index, test_index in kf.split(X, Y.T):
@@ -623,9 +535,29 @@ for train_index, test_index in kf.split(X, Y.T):
 
 
 # %%
+# %%
 from typing import Callable
 
+import lime
+import lime.lime_tabular
 from lime.explanation import Explanation
+
+# %%
+feature_names = [
+    "co_aqi_value\t",
+    "ozone_aqi_value",
+    "no2_aqi_value",
+    "pm2.5_aqi_value",
+]
+
+# %%
+explainer = lime.lime_tabular.LimeTabularExplainer(
+    X_train,
+    feature_names=feature_names,
+    class_names=["aqi_value"],
+    verbose=True,
+    mode="regression",
+)
 
 
 def get_explainer(model_predictor: Callable, y_value: float) -> Explanation:
@@ -646,3 +578,6 @@ exp.show_in_notebook(show_table=True)
 
 # %%
 exp = get_explainer(mlp.predict, X_test[i])
+
+# %%
+X_test[i]
