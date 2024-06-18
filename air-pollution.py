@@ -49,8 +49,6 @@ data = data.dropna(subset="country_name")
 data.isna().sum()
 
 # %%
-
-# %%
 import matplotlib_inline
 from matplotlib import pyplot as plt
 
@@ -430,7 +428,6 @@ r2_score(y_test, y_pred)
 differences = np.argmax([pred - test for pred, test in zip(y_pred, y_test)])
 differences
 
-
 # %%
 from sklearn.stats import shapiro, ttest_rel
 
@@ -475,6 +472,155 @@ explainer = lime.lime_tabular.LimeTabularExplainer(
     mode="regression",
 )
 
+# %% [markdown]
+# ## Walidacja krzyżowa
+
+# %%
+from sklearn.model_selection import KFold
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import r2_score
+kf = KFold(n_splits=5, shuffle=True, random_state=42)
+
+# %% [markdown]
+#
+# #### k-neighbours regressor model
+
+# %%
+from sklearn.neighbors import KNeighborsRegressor
+knr_metrics = {
+    "mean_squared_error": [],
+    "r2_score": []
+}
+for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
+    X_train, X_test = X[train_index], X[test_index]
+    Y_train, Y_test = Y[train_index], Y[test_index]
+
+    # Trenowanie modelu
+    knr = KNeighborsRegressor(n_neighbors=5)
+    knr.fit(X_train, Y_train)
+
+    # Testy modelu
+    knr_Y_pred = knr.predict(X_test)
+    
+    knr_mean_squared_error = mean_squared_error(Y_test, knr_Y_pred)
+    knr_r2_score = r2_score(Y_test, knr_Y_pred)
+
+    knr_metrics["mean_squared_error"].append(knr_mean_squared_error)
+    knr_metrics["r2_score"].append(knr_r2_score)
+    print("[ FOLD", i, "]")
+    print("    Mean squared error:", knr_mean_squared_error)
+    print("    R2 score:", knr_r2_score)
+
+# %% [markdown]
+# #### Decision tree model
+
+# %%
+from sklearn.tree import DecisionTreeRegressor
+tree_metrics = {
+    "mean_squared_error": [],
+    "r2_score": []
+}
+for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, Y_test = Y[train_index], Y[test_index]
+
+    # Trenowanie modelu
+    decision_tree = DecisionTreeRegressor()
+    decision_tree.fit(X_train, y_train)
+
+    # Testy modelu
+    tree_Y_pred = decision_tree.predict(X_test)
+
+    tree_mean_squared_error = mean_squared_error(Y_test, tree_Y_pred)
+    tree_r2_score = r2_score(Y_test, tree_Y_pred)
+
+    tree_metrics["mean_squared_error"].append(tree_mean_squared_error)
+    tree_metrics["r2_score"].append(tree_r2_score)
+    print("[ FOLD", i, "]")
+    print("    Mean squared error:", tree_mean_squared_error)
+    print("    R2 score:", tree_r2_score)
+
+
+# %% [markdown]
+# #### Lasso model
+
+# %%
+from sklearn.linear_model import Lasso
+lasso_metrics = {
+    "mean_squared_error": [],
+    "r2_score": []
+}
+for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, Y_test = Y[train_index], Y[test_index]
+
+    # Trenowanie modelu
+    lasso = Lasso(alpha=300)
+    lasso.fit(X_train, y_train)
+
+    # Testy modelu
+    lasso_Y_pred = decision_tree.predict(X_test)
+
+    lasso_mean_squared_error = mean_squared_error(Y_test, lasso_Y_pred)
+    lasso_r2_score = r2_score(Y_test, lasso_Y_pred)
+
+    lasso_metrics["mean_squared_error"].append(lasso_mean_squared_error)
+    lasso_metrics["r2_score"].append(lasso_r2_score)
+    print("[ FOLD", i, "]")
+    print("    Mean squared error:", lasso_mean_squared_error)
+    print("    R2 score:", lasso_r2_score)
+
+
+# %% [markdown]
+# #### Random forest model
+
+# %%
+from sklearn.ensemble import RandomForestRegressor
+forest_metrics = {
+    "mean_squared_error": [],
+    "r2_score": []
+}
+for i, (train_index, test_index) in enumerate(kf.split(X, Y.T)):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, Y_test = Y[train_index], Y[test_index]
+
+    # Trenowanie modelu
+    forest = RandomForestRegressor()
+    forest.fit(X_train, y_train)
+
+    # Testy modelu
+    forest_Y_pred = decision_tree.predict(X_test)
+
+    forest_mean_squared_error = mean_squared_error(Y_test, forest_Y_pred)
+    forest_r2_score = r2_score(Y_test, forest_Y_pred)
+
+    forest_metrics["mean_squared_error"].append(forest_mean_squared_error)
+    forest_metrics["r2_score"].append(forest_r2_score)
+    print("[ FOLD", i, "]")
+    print("    Mean squared error:", forest_mean_squared_error)
+    print("    R2 score:", forest_r2_score)
+
+
+# %% [markdown]
+# #### MPL Regressor
+
+# %%
+from sklearn.neural_network import MLPRegressor
+mlp_mean_squared_error = []
+mlp_r2_score = []
+for train_index, test_index in kf.split(X, Y.T):
+    X_train, X_test = X[train_index], X[test_index]
+    y_train, Y_test = Y[train_index], Y[test_index]
+
+    # Trenowanie modelu
+    mlp = MLPRegressor(random_state=random_state, max_iter=500)
+    mlp.fit(X_train, y_train)
+
+    # Testy modelu
+    mlp_Y_pred = decision_tree.predict(X_test)
+    mlp_mean_squared_error.append(mean_squared_error(Y_test, mlp_Y_pred))
+    mlp_r2_score.append(r2_score(Y_test, mlp_Y_pred))
+
 
 # %%
 from typing import Callable
@@ -500,6 +646,3 @@ exp.show_in_notebook(show_table=True)
 
 # %%
 exp = get_explainer(mlp.predict, X_test[i])
-
-# %%
-exp.show_in_notebook(show_table=True)
